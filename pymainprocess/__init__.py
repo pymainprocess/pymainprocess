@@ -13,6 +13,8 @@ class Plugin(_plugin):
     def __init__(self, name: str):
         super().__init__(name=name)
 
+__all__.append('Plugin')
+
 class ProcessBaseError(_prbaer):
     """
     Base Exception CLass for pymainprocess.
