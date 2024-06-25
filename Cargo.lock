@@ -163,6 +163,7 @@ dependencies = [
  "dotenv",
  "nix",
  "pyo3",
+ "pytype",
  "which",
 ]
 
@@ -228,6 +229,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "pytype"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a0aba4ac138049fffd47838c2766df2e44a27cee90485fb5f9d27bd1e30ee446"
 
 [[package]]
 name = "quote"
