@@ -248,6 +248,22 @@ class path:
         from .pymainprocess import path_exists as _exists
         return _exists(path)
 
+    @staticmethod
+    def is_file(path: str) -> bool:
+        """
+        Check if the Path is a File or not.
+        """
+        from .pymainprocess import path_is_file as _is_file
+        return _is_file(path)
+
+    @staticmethod
+    def is_dir(path: str) -> bool:
+        """
+        Check if the Path is a Directory or not.
+        """
+        from .pymainprocess import path_is_dir as _is_dir
+        return _is_dir(path)
+
 path = path()
 
 __all__.append("path")

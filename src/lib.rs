@@ -197,6 +197,18 @@ fn path_exists(path: &str) -> PyResult<bool> {
     Ok(_path.exists())
 }
 
+#[pyfunction]
+fn path_is_file(path: &str) -> PyResult<bool> {
+    let _path = std::path::Path::new(path);
+    Ok(_path.is_file())
+}
+
+#[pyfunction]
+fn path_is_dir(path: &str) -> PyResult<bool> {
+    let _path = std::path::Path::new(path);
+    Ok(_path.is_dir())
+}
+
 #[cfg(any(target_os = "unix", target_os = "linux"))]
 #[pyfunction]
 fn py_fork() -> PyResult<i32> {
@@ -266,6 +278,8 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_cwd, m)?)?;
     m.add_function(wrap_pyfunction!(path_join, m)?)?;
     m.add_function(wrap_pyfunction!(path_exists, m)?)?;
+    m.add_function(wrap_pyfunction!(path_is_file, m)?)?;
+    m.add_function(wrap_pyfunction!(path_is_dir, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
     m.add_function(wrap_pyfunction!(py_fork, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
