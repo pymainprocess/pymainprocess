@@ -2,8 +2,16 @@ from .pymainprocess import ProcessBaseError as _prbaer
 from .pymainprocess import CommandFailed as _cofa 
 from .pymainprocess import WindowsOnly as _wion
 from .pymainprocess import UnixOnly as _unon
+from .plugin import Plugin as _plugin
 
 __all__ = []
+
+class Plugin(_plugin):
+    """
+    Class to Works with Plugins.
+    """
+    def __init__(self, name: str):
+        super().__init__(name=name)
 
 class ProcessBaseError(_prbaer):
     """
