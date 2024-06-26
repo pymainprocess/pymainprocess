@@ -329,9 +329,9 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(env_reset, m)?)?;
     m.add_function(wrap_pyfunction!(env_os_data, m)?)?;
     m.add_function(wrap_pyfunction!(chdir, m)?)?;
-    m.add("ProcessBaseError", m.py().get_type::<ProcessBaseError>())?;
-    m.add("CommandFailed", m.py().get_type::<CommandFailed>())?;
-    m.add("UnixOnly", m.py().get_type::<UnixOnly>())?;
-    m.add("WindowsOnly", m.py().get_type::<WindowsOnly>())?;
+    m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
+    m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
+    m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;
+    m.add("WindowsOnly", m.py().get_type_bound::<WindowsOnly>())?;
     Ok(())
 }
