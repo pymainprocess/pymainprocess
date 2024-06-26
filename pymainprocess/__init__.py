@@ -316,6 +316,38 @@ class environ:
         from .pymainprocess import env_items as _items
         return _items()
 
+    @staticmethod
+    def reset():
+        """
+        Reset all Environment Variables.
+        """
+        from .pymainprocess import env_reset as _reset
+        return _reset()
+
+    @staticmethod
+    def os_data(data: str) -> str:
+        """
+        Get an OS Data.
+        Available
+        - platform / os
+        - os_version
+        - architecture
+        - kernel
+        - cpu
+        - hostname
+        """
+        from .pymainprocess import env_os_data as _os_data
+        return _os_data(data)
+
 environ = environ()
 
 __all__.append('environ')
+
+def exit(code: int):
+    """
+    Exit the Process.
+    """
+    from .pymainprocess import py_exit as _exit
+    _exit(code)
+
+__all__.append("exit")

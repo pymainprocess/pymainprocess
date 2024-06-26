@@ -6,7 +6,9 @@ use which::which;
 use std::ffi::CString;
 use dotenv::dotenv;
 use std::io::{BufRead};
+use sys_info;
 use std::env;
+use pytype::PyInt;
 
 create_exception!(pymainprocess, ProcessBaseError, PyException);
 create_exception!(pymainprocess, CommandFailed, ProcessBaseError);
@@ -15,11 +17,6 @@ create_exception!(pymainprocess, WindowsOnly, ProcessBaseError);
 
 #[cfg(any(target_os = "unix", target_os = "linux"))]
 use nix::unistd::{fork, ForkResult, execvp};
-
-#[cfg(target_pointer_width = "32")]
-type PyInt = i32;
-#[cfg(target_pointer_width = "64")]
-type PyInt = i64;
 
 #[pyfunction]
 fn call(command: &str) -> PyResult<()> {
@@ -268,6 +265,40 @@ fn env_items() -> PyResult<Vec<(String, String)>> {
     Ok(items)
 }
 
+#[pyfunction]
+fn env_reset() -> PyResult<()> {
+    std::env::vars().for_each(|(k, _)| std::env::remove_var(k));
+    Ok(())
+}
+
+#[pyfunction]
+fn env_os_data(data: &str) -> PyResult<String> {
+    match data.to_lowercase().as_str() {
+        "platform" | "os" => sys_info::os_type()
+            .map_err(|e| ProcessBaseError::new_err(format!("Failed to get os type: {}", e))),
+        "os_version" => sys_info::os_release()
+            .map_err(|e| ProcessBaseError::new_err(format!("Failed to get os version: {}", e))),
+        "architecture" => Ok(std::env::consts::ARCH.to_string()),
+        "kernel" => sys_info::os_release()
+            .map_err(|e| ProcessBaseError::new_err(format!("Failed to get kernel version: {}", e))),
+        "cpu" => {
+            let num = sys_info::cpu_num()
+                .map_err(|e| ProcessBaseError::new_err(format!("Failed to get cpu number: {}", e)))?;
+            let speed = sys_info::cpu_speed()
+                .map_err(|e| ProcessBaseError::new_err(format!("Failed to get cpu speed: {}", e)))?;
+            Ok(format!("{} cores at {} MHz", num, speed))
+        },
+        "hostname" => sys_info::hostname()
+            .map_err(|e| ProcessBaseError::new_err(format!("Failed to get hostname: {}", e))),
+        _ => Err(ProcessBaseError::new_err(format!("Invalid data: {}", data))),
+    }
+}
+
+#[pyfunction]
+fn py_exit(code: PyInt) -> PyResult<()> {
+    std::process::exit(code as i32);
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -288,6 +319,9 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(env_get_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(env_set, m)?)?;
     m.add_function(wrap_pyfunction!(env_items, m)?)?;
+    m.add_function(wrap_pyfunction!(py_exit, m)?)?;
+    m.add_function(wrap_pyfunction!(env_reset, m)?)?;
+    m.add_function(wrap_pyfunction!(env_os_data, m)?)?;
     m.add("ProcessBaseError", m.py().get_type::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type::<UnixOnly>())?;
