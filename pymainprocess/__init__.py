@@ -390,6 +390,14 @@ class path:
         from .pymainprocess import path_ismount as _ismount
         return _ismount(path)
 
+    @staticmethod
+    def splitroot(path: str) -> list:
+        """
+        Split an Path into a List.
+        """
+        from .pymainprocess import path_splitroot as _splitroot
+        return _splitroot(path)
+
 path = path()
 
 __all__.append("path")

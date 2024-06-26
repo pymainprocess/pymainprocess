@@ -623,6 +623,16 @@ fn path_ismount(path: &str) -> PyResult<bool> {
     Ok(metadata.dev() != parent_metadata.dev())
 }
 
+#[pyfunction]
+fn path_splitroot(path: &str) -> PyResult<Vec<String>> {
+    let path = std::path::Path::new(path);
+    let components: Vec<String> = path
+        .components()
+        .map(|comp| comp.as_os_str().to_string_lossy().to_string())
+        .collect();
+    Ok(components)
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -641,6 +651,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(path_split, m)?)?;
     m.add_function(wrap_pyfunction!(path_realpath, m)?)?;
     m.add_function(wrap_pyfunction!(path_islink, m)?)?;
+    m.add_function(wrap_pyfunction!(path_splitroot, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
     m.add_function(wrap_pyfunction!(path_ismount, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
