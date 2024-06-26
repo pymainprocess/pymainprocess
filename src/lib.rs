@@ -7,12 +7,13 @@ use std::ffi::CString;
 use std::fs;
 use fs_extra::dir::{copy as copy_dir, CopyOptions};
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use dotenv::dotenv;
 use std::io::BufRead;
 use sys_info;
 use std::env;
 use pytype::PyInt;
+use tempfile::{Builder, TempDir, NamedTempFile};
 
 #[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
 use std::os::unix::fs::MetadataExt;
@@ -633,6 +634,45 @@ fn path_splitroot(path: &str) -> PyResult<Vec<String>> {
     Ok(components)
 }
 
+#[pyfunction]
+fn create_temp_file(suffix: Option<&str>) -> PyResult<String> {
+    let temp_file = if let Some(suffix) = suffix {
+        Builder::new().suffix(suffix).tempfile()?
+    } else {
+        NamedTempFile::new()?
+    };
+    let path = temp_file.into_temp_path().to_path_buf();
+    Ok(path.to_string_lossy().to_string())
+}
+
+#[pyfunction]
+fn create_temp_dir(suffix: Option<&str>) -> PyResult<String> {
+    let temp_dir = if let Some(suffix) = suffix {
+        Builder::new().suffix(suffix).tempdir()?
+    } else {
+        TempDir::new()?
+    };
+    let path = temp_dir.into_path();
+    Ok(path.to_string_lossy().to_string())
+}
+
+#[pyfunction]
+fn get_temp_path(path: &str) -> PyResult<String> {
+    let path_buf = PathBuf::from(path);
+    Ok(path_buf.to_string_lossy().to_string())
+}
+
+#[pyfunction]
+fn cleanup_temp_path(path: &str, is_dir: bool) -> PyResult<()> {
+    let path_buf = PathBuf::from(path);
+    if is_dir {
+        std::fs::remove_dir_all(&path_buf).map_err(|e| ProcessBaseError::new_err(format!("Failed to remove directory: {}", e)))?;
+    } else {
+        std::fs::remove_file(&path_buf).map_err(|e| ProcessBaseError::new_err(format!("Failed to remove file: {}", e)))?;
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -691,6 +731,10 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(mkdir, m)?)?;
     m.add_function(wrap_pyfunction!(copy, m)?)?;
     m.add_function(wrap_pyfunction!(remove, m)?)?;
+    m.add_function(wrap_pyfunction!(create_temp_file, m)?)?;
+    m.add_function(wrap_pyfunction!(create_temp_dir, m)?)?;
+    m.add_function(wrap_pyfunction!(get_temp_path, m)?)?;
+    m.add_function(wrap_pyfunction!(cleanup_temp_path, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

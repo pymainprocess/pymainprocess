@@ -647,3 +647,62 @@ def download(url: str, output: str = 'default', curl: bool = False, silent: bool
         _path = path.join(getcwd(), _name)
         output = _path
     _download(url, output, curl, silent)
+
+class Temporary:
+    """
+    Class to work with temporary files and directories.
+    """
+    def __init__(self, is_dir: bool = False, suffix: any = None):
+        """
+        Initialize a Temporary object.
+
+        :param is_dir: Boolean indicating if a directory should be created.
+        :param suffix: Optional suffix for the temporary file or directory.
+        """
+        if suffix is not None:
+            if not isinstance(suffix, str):
+                raise ProcessBaseError("Suffix must be a string.")
+            self.suffix = suffix
+        else:
+            self.suffix = None
+        self.is_dir = is_dir
+        if self.is_dir:
+            self.path = self.create_temp_dir(self.suffix)
+        else:
+            self.path = self.create_temp_file(self.suffix)
+    
+    def create_temp_file(self, suffix: str):
+        """
+        Create a temporary file with the given suffix.
+
+        :param suffix: Suffix for the temporary file.
+        :return: Path to the temporary file.
+        """
+        from .pymainprocess import create_temp_file as _create_temp_file
+        return _create_temp_file(suffix)
+    
+    def create_temp_dir(self, suffix: str):
+        """
+        Create a temporary directory with the given suffix.
+
+        :param suffix: Suffix for the temporary directory.
+        :return: Path to the temporary directory.
+        """
+        from .pymainprocess import create_temp_dir as _create_temp_dir
+        return _create_temp_dir(suffix)
+
+    def get_path(self):
+        """
+        Get the path of the temporary file or directory.
+
+        :return: Path to the temporary file or directory.
+        """
+        from .pymainprocess import get_temp_path as _get_temp_path
+        return _get_temp_path(self.path)
+
+    def cleanup(self):
+        """
+        Clean up the temporary file or directory.
+        """
+        from .pymainprocess import cleanup_temp_path as _cleanup_temp_path
+        _cleanup_temp_path(self.path, self.is_dir)
