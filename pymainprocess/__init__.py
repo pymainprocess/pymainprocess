@@ -296,6 +296,62 @@ class path:
         from .pymainprocess import path_splitext as _splitext
         return _splitext(path)
 
+    @staticmethod
+    def walk(start_path: str = getcwd(), recursive: bool = False) -> any:
+        """
+        Walk through a Directory and Get all Dirs, Subdirs, Files and More.
+        """
+        from .pymainprocess import path_walk as _walk
+        if not recursive:
+            return _walk(start_path)
+        else:
+            _result = _walk(start_path)
+            basename = path.basename(start_path)
+            _dirs = _result[basename]['dirs']
+            def recursive_walk(base_path, dirs):
+                for i, _dir in enumerate(dirs):
+                    full_path = path.join(base_path, _dir)
+                    dirs[i] = _walk(full_path)
+                    sub_basename = path.basename(full_path)
+                    if 'dirs' in dirs[i][sub_basename]:
+                        recursive_walk(full_path, dirs[i][sub_basename]['dirs'])
+            recursive_walk(start_path, _dirs)
+            return _result
+        
+    @staticmethod
+    def walksearch(result: dict, subdirs: list, search_file: bool = True, search_dir: bool = True) -> dict:
+        """
+        Filter the walk result based on search_file and search_dir parameters.
+        """
+        def recursive_search(current_result, subdirs):
+            if not subdirs:
+                return current_result
+            
+            current_dir = subdirs[0]
+            remaining_subdirs = subdirs[1:]
+            
+            for subdir_dict in current_result:
+                subdir_name = next(iter(subdir_dict))
+                if subdir_name == current_dir:
+                    next_result = subdir_dict[subdir_name]
+                    if remaining_subdirs:
+                        if 'dirs' in next_result:
+                            return recursive_search(next_result['dirs'], remaining_subdirs)
+                    else:
+                        return next_result
+            return {}
+
+        _start_name = next(iter(result))
+        filtered_result = recursive_search(result[_start_name]['dirs'], subdirs)
+        
+        if not search_file and 'files' in filtered_result:
+            del filtered_result['files']
+        
+        if not search_dir and 'dirs' in filtered_result:
+            del filtered_result['dirs']
+        
+        return filtered_result
+
 path = path()
 
 __all__.append("path")

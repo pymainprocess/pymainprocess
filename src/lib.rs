@@ -6,6 +6,8 @@ use which::which;
 use std::ffi::CString;
 use std::fs;
 use fs_extra::dir::{copy as copy_dir, CopyOptions};
+use std::collections::HashMap;
+use std::path::Path;
 use dotenv::dotenv;
 use std::io::{BufRead};
 use sys_info;
@@ -228,6 +230,41 @@ fn path_splitext(path: &str) -> PyResult<(String, String)> {
     Ok((base, ext))
 }
 
+#[pyfunction]
+fn path_walk(start_path: &str) -> PyResult<HashMap<String, HashMap<String, Vec<String>>>> {
+    fn walk_dir(path: &Path) -> PyResult<HashMap<String, Vec<String>>> {
+        let mut dirs = Vec::new();
+        let mut files = Vec::new();
+
+        for entry in fs::read_dir(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to read directory: {}", e)))? {
+            let entry = entry.map_err(|e| ProcessBaseError::new_err(format!("Failed to read entry: {}", e)))?;
+            let path = entry.path();
+            if path.is_dir() {
+                dirs.push(path.file_name().unwrap().to_str().unwrap().to_string());
+            } else {
+                files.push(path.file_name().unwrap().to_str().unwrap().to_string());
+            }
+        }
+
+        let mut result = HashMap::new();
+        result.insert("dirs".to_string(), dirs);
+        result.insert("files".to_string(), files);
+
+        Ok(result)
+    }
+
+    let path = Path::new(start_path);
+    if !path.is_dir() {
+        return Err(ProcessBaseError::new_err("Start path is not a directory".to_string()));
+    }
+
+    let result = walk_dir(path)?;
+    let mut final_result = HashMap::new();
+    let basename = path.file_name().unwrap().to_str().unwrap().to_string();
+    final_result.insert(basename, result);
+    Ok(final_result)
+}
+
 #[cfg(any(target_os = "unix", target_os = "linux"))]
 #[pyfunction]
 fn py_fork() -> PyResult<i32> {
@@ -362,6 +399,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(path_is_dir, m)?)?;
     m.add_function(wrap_pyfunction!(path_basename, m)?)?;
     m.add_function(wrap_pyfunction!(path_splitext, m)?)?;
+    m.add_function(wrap_pyfunction!(path_walk, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
     m.add_function(wrap_pyfunction!(py_fork, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
