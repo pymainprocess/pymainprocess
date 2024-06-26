@@ -69,7 +69,7 @@ class UnixOnly(_unon):
     
 __all__.append("UnixOnly")
 
-def call(command: any, stdout: bool = False, stderr: bool = False) -> any:
+def call(command: any, stdout: bool = False, stderr: bool = False, strip: bool = False) -> any:
     """
     Call an Command and Return if needed the Result.
     """
@@ -81,19 +81,26 @@ def call(command: any, stdout: bool = False, stderr: bool = False) -> any:
         command = " ".join(command)
     if stdout and stderr:
         _stdout, _stderr = _call2(command)
+        if strip:
+            _stdout = _stdout.strip()
+            _stderr = _stderr.strip()
         return _stdout, _stderr
     elif stdout:
         _stdout, _stderr = _call2(command)
+        if strip:
+            _stdout = _stdout.strip()
         return _stdout
     elif stderr:
         _stdout, _stderr = _call2(command)
+        if strip:
+            _stderr = _stderr.strip()
         return _stderr
     else:
         _call1(command)
 
 __all__.append("call")
 
-def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = False):
+def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = False, strip: bool = False):
     """
     Execute a Command as Sudo and user if user given.
     """
@@ -105,12 +112,19 @@ def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = 
         command = " ".join(command)
     if stdout and stderr:
         _stdout, _stderr = _sudo2(command, user)
+        if strip:
+            _stdout = _stdout.strip()
+            _stderr = _stderr.strip()
         return _stdout, _stderr
     elif stdout:
         _stdout, _stderr = _sudo2(command, user)
+        if strip:
+            _stdout = _stdout.strip()
         return _stdout
     elif stderr:
         _stdout, _stderr = _sudo2(command, user)
+        if strip:
+            _stderr = _stderr.strip()
         return _stderr
     else:
         _sudo1(command, user)
@@ -132,19 +146,13 @@ def listdir(path: str = getcwd()) -> list:
     """
     from platform import system as _sys
     if _sys().lower() == "windows":
-        stdout, stderr = call(f"dir {path}", stdout=True, stderr=True, safe_output=True)
-        if stderr:
-            raise CommandFailed(f"Command Failed: {stderr}")
+        stdout = call(f"dir {path}", stdout=True)
         return stdout.split("\n")
     elif _sys().lower() == "darwin":
-        stdout, stderr = call(f"ls -A {path}", stdout=True, stderr=True, safe_output=True)
-        if stderr:
-            raise CommandFailed(f"Command Failed: {stderr}")
+        stdout = call(f"ls -A {path}", stdout=True)
         return stdout.split("\n")
     elif _sys().lower() == "linux":
-        stdout, stderr = call(f"ls -A {path}", stdout=True, stderr=True, safe_output=True)
-        if stderr:
-            raise CommandFailed(f"Command Failed: {stderr}")
+        stdout = call(f"ls -A {path}", stdout=True)
         return stdout.split("\n")
 
 __all__.append("listdir")
