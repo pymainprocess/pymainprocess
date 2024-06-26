@@ -9,7 +9,7 @@ use fs_extra::dir::{copy as copy_dir, CopyOptions};
 use std::collections::HashMap;
 use std::path::Path;
 use dotenv::dotenv;
-use std::io::{BufRead};
+use std::io::BufRead;
 use sys_info;
 use std::env;
 use pytype::PyInt;
