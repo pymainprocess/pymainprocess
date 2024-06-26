@@ -22,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-amd64.deb
-          path: build/python3-pymainprocess-amd64.deb
+          path: build/*.deb
 
   build_x86:
     runs-on: ubuntu-latest
@@ -37,12 +37,11 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-i386.deb
       - name: Upload Debian Package for x86
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-i386.deb
-          path: build/python3-pymainprocess-i386.deb
+          path: build/*.deb
 
   build_aarch64:
     runs-on: ubuntu-latest
@@ -57,12 +56,11 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-arm64.deb
       - name: Upload Debian Package for aarch64
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-arm64.deb
-          path: build/python3-pymainprocess-arm64.deb
+          path: build/*.deb
 
   build_armv7:
     runs-on: ubuntu-latest
@@ -77,12 +75,11 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-armhf.deb
       - name: Upload Debian Package for armv7
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-armhf.deb
-          path: build/python3-pymainprocess-armhf.deb
+          path: build/*.deb
 
   build_s390x:
     runs-on: ubuntu-latest
@@ -97,12 +94,11 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-s390x.deb
       - name: Upload Debian Package for s390x
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-s390x.deb
-          path: build/python3-pymainprocess-s390x.deb
+          path: build/*.deb
 
   build_ppc64le:
     runs-on: ubuntu-latest
@@ -117,9 +113,8 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-ppc64el.deb
       - name: Upload Debian Package for ppc64le
         uses: actions/upload-artifact@v4
         with:
           name: python3-pymainprocess-ppc64el.deb
-          path: build/python3-pymainprocess-ppc64el.deb
+          path: build/*.deb
