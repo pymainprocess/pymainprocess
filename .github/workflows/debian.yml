@@ -37,12 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Create Dockerfile for x86
+        run: |
+          echo "FROM i386/ubuntu:latest" > Dockerfile.x86
+          echo "RUN apt-get update -qq && apt-get install -y python3-virtualenv dpkg-dev" >> Dockerfile.x86
+          echo "COPY . /workspace" >> Dockerfile.x86
+          echo "WORKDIR /workspace" >> Dockerfile.x86
+          echo "RUN mkdir build && ./.build.sh" >> Dockerfile.x86
       - name: Create Debian Package for x86
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx build --platform linux/386 -t myimage:386 .
+          docker buildx build --platform linux/386 -f Dockerfile.x86 -t myimage:386 .
           docker run --rm myimage:386 /bin/bash -c "
             sudo apt-get update -qq &&
             sudo apt-get install -y python3-virtualenv dpkg-dev &&
@@ -60,12 +65,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Create Dockerfile for aarch64
+        run: |
+          echo "FROM arm64v8/ubuntu:latest" > Dockerfile.aarch64
+          echo "RUN apt-get update -qq && apt-get install -y python3-virtualenv dpkg-dev" >> Dockerfile.aarch64
+          echo "COPY . /workspace" >> Dockerfile.aarch64
+          echo "WORKDIR /workspace" >> Dockerfile.aarch64
+          echo "RUN mkdir build && ./.build.sh" >> Dockerfile.aarch64
       - name: Create Debian Package for aarch64
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx build --platform linux/arm64 -t myimage:arm64 .
+          docker buildx build --platform linux/arm64 -f Dockerfile.aarch64 -t myimage:arm64 .
           docker run --rm myimage:arm64 /bin/bash -c "
             sudo apt-get update -qq &&
             sudo apt-get install -y python3-virtualenv dpkg-dev &&
@@ -83,12 +93,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Create Dockerfile for armv7
+        run: |
+          echo "FROM arm32v7/ubuntu:latest" > Dockerfile.armv7
+          echo "RUN apt-get update -qq && apt-get install -y python3-virtualenv dpkg-dev" >> Dockerfile.armv7
+          echo "COPY . /workspace" >> Dockerfile.armv7
+          echo "WORKDIR /workspace" >> Dockerfile.armv7
+          echo "RUN mkdir build && ./.build.sh" >> Dockerfile.armv7
       - name: Create Debian Package for armv7
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx build --platform linux/arm/v7 -t myimage:armv7 .
+          docker buildx build --platform linux/arm/v7 -f Dockerfile.armv7 -t myimage:armv7 .
           docker run --rm myimage:armv7 /bin/bash -c "
             sudo apt-get update -qq &&
             sudo apt-get install -y python3-virtualenv dpkg-dev &&
@@ -106,12 +121,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Create Dockerfile for s390x
+        run: |
+          echo "FROM s390x/ubuntu:latest" > Dockerfile.s390x
+          echo "RUN apt-get update -qq && apt-get install -y python3-virtualenv dpkg-dev" >> Dockerfile.s390x
+          echo "COPY . /workspace" >> Dockerfile.s390x
+          echo "WORKDIR /workspace" >> Dockerfile.s390x
+          echo "RUN mkdir build && ./.build.sh" >> Dockerfile.s390x
       - name: Create Debian Package for s390x
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx build --platform linux/s390x -t myimage:s390x .
+          docker buildx build --platform linux/s390x -f Dockerfile.s390x -t myimage:s390x .
           docker run --rm myimage:s390x /bin/bash -c "
             sudo apt-get update -qq &&
             sudo apt-get install -y python3-virtualenv dpkg-dev &&
@@ -129,12 +149,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Create Dockerfile for ppc64le
+        run: |
+          echo "FROM ppc64le/ubuntu:latest" > Dockerfile.ppc64le
+          echo "RUN apt-get update -qq && apt-get install -y python3-virtualenv dpkg-dev" >> Dockerfile.ppc64le
+          echo "COPY . /workspace" >> Dockerfile.ppc64le
+          echo "WORKDIR /workspace" >> Dockerfile.ppc64le
+          echo "RUN mkdir build && ./.build.sh" >> Dockerfile.ppc64le
       - name: Create Debian Package for ppc64le
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-          docker buildx build --platform linux/ppc64le -t myimage:ppc64le .
+          docker buildx build --platform linux/ppc64le -f Dockerfile.ppc64le -t myimage:ppc64le .
           docker run --rm myimage:ppc64le /bin/bash -c "
             sudo apt-get update -qq &&
             sudo apt-get install -y python3-virtualenv dpkg-dev &&
