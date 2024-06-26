@@ -4,36 +4,122 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: ubuntu-latest
-            target: x86_64
-          - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
-            target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-          - runner: ubuntu-latest
-            target: s390x
-          - runner: ubuntu-latest
-            target: ppc64le
+  build_x86_64:
+    runs-on: ubuntu-latest
+    container:
+      image: amd64/ubuntu:latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-      - name: Create Debian Package
+      - name: Create Debian Package for x86_64
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
-          arch=$(dpkg --print-architecture)
           ./.build.sh
-          mv build/python3-pymainprocess-${arch}.deb build/python3-pymainprocess-${{ matrix.platform.target }}.deb
-      - name: Upload Debian Package
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-amd64.deb
+      - name: Upload Debian Package for x86_64
         uses: actions/upload-artifact@v4
         with:
-          name: python3-pymainprocess-${{ matrix.platform.target }}.deb
-          path: build/*.deb
+          name: python3-pymainprocess-amd64.deb
+          path: build/python3-pymainprocess-amd64.deb
+
+  build_x86:
+    runs-on: ubuntu-latest
+    container:
+      image: i386/ubuntu:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Create Debian Package for x86
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tar xz-utils binutils python3-virtualenv
+          mkdir build
+          ./.build.sh
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-i386.deb
+      - name: Upload Debian Package for x86
+        uses: actions/upload-artifact@v4
+        with:
+          name: python3-pymainprocess-i386.deb
+          path: build/python3-pymainprocess-i386.deb
+
+  build_aarch64:
+    runs-on: ubuntu-latest
+    container:
+      image: arm64v8/ubuntu:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Create Debian Package for aarch64
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tar xz-utils binutils python3-virtualenv
+          mkdir build
+          ./.build.sh
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-arm64.deb
+      - name: Upload Debian Package for aarch64
+        uses: actions/upload-artifact@v4
+        with:
+          name: python3-pymainprocess-arm64.deb
+          path: build/python3-pymainprocess-arm64.deb
+
+  build_armv7:
+    runs-on: ubuntu-latest
+    container:
+      image: arm32v7/ubuntu:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Create Debian Package for armv7
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tar xz-utils binutils python3-virtualenv
+          mkdir build
+          ./.build.sh
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-armhf.deb
+      - name: Upload Debian Package for armv7
+        uses: actions/upload-artifact@v4
+        with:
+          name: python3-pymainprocess-armhf.deb
+          path: build/python3-pymainprocess-armhf.deb
+
+  build_s390x:
+    runs-on: ubuntu-latest
+    container:
+      image: s390x/ubuntu:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Create Debian Package for s390x
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tar xz-utils binutils python3-virtualenv
+          mkdir build
+          ./.build.sh
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-s390x.deb
+      - name: Upload Debian Package for s390x
+        uses: actions/upload-artifact@v4
+        with:
+          name: python3-pymainprocess-s390x.deb
+          path: build/python3-pymainprocess-s390x.deb
+
+  build_ppc64le:
+    runs-on: ubuntu-latest
+    container:
+      image: ppc64le/ubuntu:latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - name: Create Debian Package for ppc64le
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y tar xz-utils binutils python3-virtualenv
+          mkdir build
+          ./.build.sh
+          mv build/python3-pymainprocess.deb build/python3-pymainprocess-ppc64el.deb
+      - name: Upload Debian Package for ppc64le
+        uses: actions/upload-artifact@v4
+        with:
+          name: python3-pymainprocess-ppc64el.deb
+          path: build/python3-pymainprocess-ppc64el.deb
