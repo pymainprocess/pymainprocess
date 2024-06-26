@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# Install sudo if not already installed
 if ! command -v sudo &>/dev/null; then
     apt-get update -qq
     apt-get install sudo -y
 fi
 
-# Create a temporary user
+# Check if the temporary user already exists
 TEMP_USER="tempuser"
-useradd -m -s /bin/bash $TEMP_USER
-echo "$TEMP_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+if ! id -u $TEMP_USER > /dev/null 2>&1; then
+  useradd -m -s /bin/bash $TEMP_USER
+  echo "$TEMP_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+fi
 
 # Create a temporary directory
 TEMP_DIR=$(mktemp -d -p /tmp)
