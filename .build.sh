@@ -9,21 +9,24 @@ TEMP_USER="tempuser"
 useradd -m -s /bin/bash $TEMP_USER
 echo "$TEMP_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
+# Create a temporary directory
+TEMP_DIR=$(mktemp -d)
+
 # Run the rest of the script as the temporary user
-sudo -u $TEMP_USER bash << 'EOF'
+sudo -u $TEMP_USER bash << EOF
 set -e
 
-arch=$(dpkg --print-architecture)
+arch=\$(dpkg --print-architecture)
 
-cdir=$(pwd)
+cdir=\$(pwd)
 
-build="${cdir}/build"
-location="${build}/lib/python3/dist-packages"
+build="${TEMP_DIR}/build"
+location="\${build}/lib/python3/dist-packages"
 
-mkdir -p ${build}
-mkdir -p ${location}
+mkdir -p \${build}
+mkdir -p \${location}
 
-package="${build}/python3-pymainprocess-${arch}.deb"
+package="\${build}/python3-pymainprocess-\${arch}.deb"
 
 virtualenv .venv
 
@@ -31,27 +34,27 @@ source .venv/bin/activate
 
 pip install pymainprocess
 
-name=$(pip show pymainprocess | grep "Name: " | awk -F "Name: " '{print $2}')
-version=$(pip show pymainprocess | grep "Version: " | awk -F "Version: " '{print $2}')
-description=$(pip show pymainprocess | grep "Summary: " | awk -F "Summary: " '{print $2}')
-maintainer=$(pip show pymainprocess | grep "Author: " | awk -F "Author: " '{print $2}')
+name=\$(pip show pymainprocess | grep "Name: " | awk -F "Name: " '{print \$2}')
+version=\$(pip show pymainprocess | grep "Version: " | awk -F "Version: " '{print \$2}')
+description=\$(pip show pymainprocess | grep "Summary: " | awk -F "Summary: " '{print \$2}')
+maintainer=\$(pip show pymainprocess | grep "Author: " | awk -F "Author: " '{print \$2}')
 
-cd "${build}"
+cd "\${build}"
 
-pip install pymainprocess --target "${location}"
+pip install pymainprocess --target "\${location}"
 
-size=$(du -sk "${build}/lib" | awk '{print $1}')
+size=\$(du -sk "\${build}/lib" | awk '{print \$1}')
 
 cat <<CONTROL > control
-Package: ${name}
-Version: ${version}
+Package: \${name}
+Version: \${version}
 Section: utils
 Priority: optional
-Architecture: ${arch}
-Installed-Size: ${size}
+Architecture: \${arch}
+Installed-Size: \${size}
 Depends: python3
-Maintainer: ${maintainer}
-Description: ${description}
+Maintainer: \${maintainer}
+Description: \${description}
 
 CONTROL
 
@@ -62,9 +65,13 @@ rm -rf ./control ./lib
 
 echo 2.0 > debian-binary
 
-ar rcs "${package}" debian-binary control.tar.xz data.tar.xz
+ar rcs "\${package}" debian-binary control.tar.xz data.tar.xz
 
 rm -rf debian-binary control.tar.xz data.tar.xz 
 
-cd  "${cdir}"
+cd  "\${cdir}"
 EOF
+
+# Move the created package to the expected directory
+mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb build/
+rm -rf ${TEMP_DIR}
