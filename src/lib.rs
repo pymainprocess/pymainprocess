@@ -507,7 +507,7 @@ fn get_egid() -> PyResult<PyInt> {
     Ok(egid as PyInt)
 }
 
-#[cfg(any(target_os = "linux", target_os = "unix"))]
+#[cfg(any(target_os = "linux", target_os = "unix", target_os = "macos"))]
 #[pyfunction]
 fn chmod(path: &str, mode: u32) -> PyResult<()> {
     use std::os::unix::fs::PermissionsExt;
@@ -520,7 +520,7 @@ fn chmod(path: &str, mode: u32) -> PyResult<()> {
     Ok(())
 }
 
-#[cfg(any(target_os = "linux", target_os = "unix"))]
+#[cfg(any(target_os = "linux", target_os = "unix", target_os = "macos"))]
 #[pyfunction]
 fn chown(path: &str, uid: u32, gid: u32) -> PyResult<()> {
     use std::ffi::CString;
@@ -532,6 +532,59 @@ fn chown(path: &str, uid: u32, gid: u32) -> PyResult<()> {
         return Err(ProcessBaseError::new_err(format!("Failed to change owner: {}", std::io::Error::last_os_error())));
     }
     Ok(())
+}
+
+#[pyfunction]
+fn clear() -> PyResult<()> {
+    let _output = if cfg!(any(target_os = "linux", target_os = "unix", target_os = "macos")) {
+        Command::new("clear").status().map_err(|e| ProcessBaseError::new_err(format!("Failed to clear: {}", e)))?;
+    } else {
+        Command::new("cls").status().map_err(|e| ProcessBaseError::new_err(format!("Failed to clear: {}", e)))?;
+    };
+    Ok(())
+}
+
+#[pyfunction]
+fn download(url: &str, output: &str, curl: bool, silent: bool) -> PyResult<()> {
+    let status = if curl {
+        if silent {
+            Command::new("curl")
+                .arg("-s")
+                .arg("-o")
+                .arg(output)
+                .arg("-L")
+                .arg(url)
+                .status()
+        } else {
+            Command::new("curl")
+                .arg("-o")
+                .arg(output)
+                .arg("-L")
+                .arg(url)
+                .status()
+        }
+    } else {
+        if silent {
+            Command::new("wget")
+                .arg("-q")
+                .arg("-O")
+                .arg(output)
+                .arg(url)
+                .status()
+        } else {
+            Command::new("wget")
+                .arg("-O")
+                .arg(output)
+                .arg(url)
+                .status()
+        }
+    };
+
+    match status {
+        Ok(s) if s.success() => Ok(()),
+        Ok(s) => Err(CommandFailed::new_err(format!("Command failed with status: {}", s))),
+        Err(e) => Err(CommandFailed::new_err(format!("Failed to execute command: {}", e))),
+    }
 }
 
 #[pymodule]
@@ -573,6 +626,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(chmod, m)?)?;
     #[cfg(any(target_os = "linux", target_os = "unix"))]
     m.add_function(wrap_pyfunction!(chown, m)?)?;
+    m.add_function(wrap_pyfunction!(clear, m)?)?;
     m.add_function(wrap_pyfunction!(env_get, m)?)?;
     m.add_function(wrap_pyfunction!(env_get_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(env_set, m)?)?;
@@ -580,6 +634,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_exit, m)?)?;
     m.add_function(wrap_pyfunction!(env_reset, m)?)?;
     m.add_function(wrap_pyfunction!(env_os_data, m)?)?;
+    m.add_function(wrap_pyfunction!(download, m)?)?;
     m.add_function(wrap_pyfunction!(chdir, m)?)?;
     m.add_function(wrap_pyfunction!(mkdir, m)?)?;
     m.add_function(wrap_pyfunction!(copy, m)?)?;

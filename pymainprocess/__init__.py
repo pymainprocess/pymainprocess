@@ -585,3 +585,22 @@ def chown(path: str, uid: int, gid: int):
         raise UnixOnly("This Action is only for Unix.")
     from .pymainprocess import chown as _chown
     _chown(path, uid, gid)
+
+def clear():
+    """
+    Clear the Terminal.
+    """
+    from .pymainprocess import clear as _clear
+    _clear()
+
+def download(url: str, output: str = 'default', curl: bool = False, silent: bool = False):
+    """
+    Download a File from an Url.
+    """
+    from .pymainprocess import download as _download
+    if output == 'default':
+        _raw = url.replace('https://', '').replace('http://', '')
+        _name = path.basename(_raw)
+        _path = path.join(getcwd(), _name)
+        output = _path
+    _download(url, output, curl, silent)
