@@ -360,3 +360,10 @@ def chdir(path: str = getcwd()):
     _chdir(path)
 
 __all__.append("chdir")
+
+def makedir(path: str, exist_ok: bool = False):
+    """
+    Create a Directory.
+    """
+    from .pymainprocess import mkdir as _mkdir
+    _mkdir(path, exist_ok)
