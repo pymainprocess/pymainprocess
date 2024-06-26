@@ -1,6 +1,6 @@
 #!/bin/bash
 
-arch="$1"
+arch=$(dpkg --print-architecture)
 
 cdir=$(pwd)
 
@@ -10,7 +10,7 @@ location="${build}/lib/python3/dist-packages"
 mkdir -p ${build}
 mkdir -p ${location}
 
-package="${build}/python3-pymainprocess.deb"
+package="${build}/python3-pymainprocess-${arch}.deb"
 
 virtualenv .venv
 

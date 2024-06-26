@@ -30,8 +30,8 @@ jobs:
           sudo apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           arch=$(dpkg --print-architecture)
-          ./.build.sh ${arch}
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-${{ matrix.platform.target }}.deb
+          ./.build.sh
+          mv build/python3-pymainprocess-${arch}.deb build/python3-pymainprocess-${{ matrix.platform.target }}.deb
       - name: Upload Debian Package
         uses: actions/upload-artifact@v4
         with:
