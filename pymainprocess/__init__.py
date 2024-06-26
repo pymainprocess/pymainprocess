@@ -10,8 +10,8 @@ class Plugin(_plugin):
     """
     Class to Works with Plugins.
     """
-    def __init__(self, name: str):
-        super().__init__(name=name)
+    def __init__(self, name: str, path: str = None):
+        super().__init__(name=name, path=path)
 
 __all__.append('Plugin')
 
@@ -69,7 +69,7 @@ class UnixOnly(_unon):
     
 __all__.append("UnixOnly")
 
-def call(command: any, stdout: bool = False, stderr: bool = False, safe_output: bool = False) -> any:
+def call(command: any, stdout: bool = False, stderr: bool = False) -> any:
     """
     Call an Command and Return if needed the Result.
     """
@@ -79,22 +79,21 @@ def call(command: any, stdout: bool = False, stderr: bool = False, safe_output: 
         raise ProcessBaseError("Command must be a list or a string")
     if isinstance(command, (list)):
         command = " ".join(command)
-    if stdout and stderr and not safe_output:
-        raise ProcessBaseError("stdout and stderr cannot be used together if safe_output is False")
-    if safe_output:
+    if stdout and stderr:
         _stdout, _stderr = _call2(command)
-        if stdout and stderr:
-            return _stdout, _stderr
-        elif stdout:
-            return _stdout
-        elif stderr:
-            return _stderr
+        return _stdout, _stderr
+    elif stdout:
+        _stdout, _stderr = _call2(command)
+        return _stdout
+    elif stderr:
+        _stdout, _stderr = _call2(command)
+        return _stderr
     else:
         _call1(command)
 
 __all__.append("call")
 
-def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = False, safe_output: bool = False):
+def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = False):
     """
     Execute a Command as Sudo and user if user given.
     """
@@ -104,16 +103,15 @@ def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = 
         raise ProcessBaseError("Command must be a list or a string")
     if isinstance(command, (list)):
         command = " ".join(command)
-    if stdout and stderr and not safe_output:
-        raise ProcessBaseError("stdout and stderr cannot be used together if safe_output is False")
-    if safe_output:
+    if stdout and stderr:
         _stdout, _stderr = _sudo2(command, user)
-        if stdout and stderr:
-            return _stdout, _stderr
-        elif stdout:
-            return _stdout
-        elif stderr:
-            return _stderr
+        return _stdout, _stderr
+    elif stdout:
+        _stdout, _stderr = _sudo2(command, user)
+        return _stdout
+    elif stderr:
+        _stdout, _stderr = _sudo2(command, user)
+        return _stderr
     else:
         _sudo1(command, user)
 

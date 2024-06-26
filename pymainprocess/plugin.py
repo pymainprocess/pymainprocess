@@ -5,14 +5,18 @@ class Plugin:
     """
     Class to Works with Plugins from pymainprocess.
     """
-    def __init__(self, name: str):
+    def __init__(self, name: str, path: str = None):
         """
         Initial the Plugin with Given Path, load the Plugin and Get the Functions.
         """
         self.__home__ = _pyprocess.environ.get('HOME')
-        self.__path__ = _pyprocess.path.join(self.__home__, '.config', 'pymainprocess', 'plugins')
-        self.__plugin__ = _pyprocess.path.join(self.__path__, name, 'preload.py')
         self.__name__ = name
+        if path is None:
+            self.__path__ = _pyprocess.path.join(self.__home__, '.config', 'pymainprocess', 'plugins')
+            self.__plugin__ = _pyprocess.path.join(self.__path__, name, 'preload.py')
+        else:
+            self.__path__ = path
+            self.__plugin__ = _pyprocess.path.join(self.__path__, f'{name}.py')
         if not _pyprocess.path.exists(self.__plugin__):
             raise FileNotFoundError(f"Plugin {name} not found.")
         
