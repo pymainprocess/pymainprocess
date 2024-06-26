@@ -21,8 +21,8 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for x86_64
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           mkdir build
           ./.build.sh
       - name: Upload Debian Package for x86_64
@@ -39,11 +39,13 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for x86
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           docker buildx build --platform linux/386 -t myimage:386 .
           docker run --rm myimage:386 /bin/bash -c "
-            apt-get update -qq &&
-            apt-get install -y python3-virtualenv dpkg-dev &&
+            sudo apt-get update -qq &&
+            sudo apt-get install -y python3-virtualenv dpkg-dev &&
             mkdir build &&
             ./.build.sh"
       - name: Upload Debian Package for x86
@@ -60,11 +62,13 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for aarch64
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           docker buildx build --platform linux/arm64 -t myimage:arm64 .
           docker run --rm myimage:arm64 /bin/bash -c "
-            apt-get update -qq &&
-            apt-get install -y python3-virtualenv dpkg-dev &&
+            sudo apt-get update -qq &&
+            sudo apt-get install -y python3-virtualenv dpkg-dev &&
             mkdir build &&
             ./.build.sh"
       - name: Upload Debian Package for aarch64
@@ -81,11 +85,13 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for armv7
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           docker buildx build --platform linux/arm/v7 -t myimage:armv7 .
           docker run --rm myimage:armv7 /bin/bash -c "
-            apt-get update -qq &&
-            apt-get install -y python3-virtualenv dpkg-dev &&
+            sudo apt-get update -qq &&
+            sudo apt-get install -y python3-virtualenv dpkg-dev &&
             mkdir build &&
             ./.build.sh"
       - name: Upload Debian Package for armv7
@@ -102,11 +108,13 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for s390x
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           docker buildx build --platform linux/s390x -t myimage:s390x .
           docker run --rm myimage:s390x /bin/bash -c "
-            apt-get update -qq &&
-            apt-get install -y python3-virtualenv dpkg-dev &&
+            sudo apt-get update -qq &&
+            sudo apt-get install -y python3-virtualenv dpkg-dev &&
             mkdir build &&
             ./.build.sh"
       - name: Upload Debian Package for s390x
@@ -123,11 +131,13 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Create Debian Package for ppc64le
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-virtualenv dpkg-dev
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
           docker buildx build --platform linux/ppc64le -t myimage:ppc64le .
           docker run --rm myimage:ppc64le /bin/bash -c "
-            apt-get update -qq &&
-            apt-get install -y python3-virtualenv dpkg-dev &&
+            sudo apt-get update -qq &&
+            sudo apt-get install -y python3-virtualenv dpkg-dev &&
             mkdir build &&
             ./.build.sh"
       - name: Upload Debian Package for ppc64le

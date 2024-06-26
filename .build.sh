@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# Install sudo if not already installed
-apt-get update -qq
-apt-get install -y sudo
-
 # Create a temporary user
 TEMP_USER="tempuser"
 useradd -m -s /bin/bash $TEMP_USER
