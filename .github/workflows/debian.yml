@@ -4,10 +4,18 @@ on:
   workflow_dispatch:
 
 jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Docker Buildx
+        run: |
+          docker run --privileged --rm tonistiigi/binfmt --install all
+          docker buildx create --use
+          docker buildx inspect --bootstrap
+
   build_x86_64:
     runs-on: ubuntu-latest
-    container:
-      image: amd64/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,18 +33,19 @@ jobs:
 
   build_x86:
     runs-on: ubuntu-latest
-    needs: build_x86_64
-    container:
-      image: i386/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: Create Debian Package for x86
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
-          mkdir build
-          ./.build.sh
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx build --platform linux/386 -t myimage:386 .
+          docker run --rm myimage:386 /bin/bash -c "
+            apt-get update -qq &&
+            apt-get install -y python3-virtualenv dpkg-dev &&
+            mkdir build &&
+            ./.build.sh"
       - name: Upload Debian Package for x86
         uses: actions/upload-artifact@v4
         with:
@@ -45,18 +54,19 @@ jobs:
 
   build_aarch64:
     runs-on: ubuntu-latest
-    needs: build_x86
-    container:
-      image: arm64v8/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: Create Debian Package for aarch64
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
-          mkdir build
-          ./.build.sh
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx build --platform linux/arm64 -t myimage:arm64 .
+          docker run --rm myimage:arm64 /bin/bash -c "
+            apt-get update -qq &&
+            apt-get install -y python3-virtualenv dpkg-dev &&
+            mkdir build &&
+            ./.build.sh"
       - name: Upload Debian Package for aarch64
         uses: actions/upload-artifact@v4
         with:
@@ -65,18 +75,19 @@ jobs:
 
   build_armv7:
     runs-on: ubuntu-latest
-    needs: build_aarch64
-    container:
-      image: arm32v7/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: Create Debian Package for armv7
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
-          mkdir build
-          ./.build.sh
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx build --platform linux/arm/v7 -t myimage:armv7 .
+          docker run --rm myimage:armv7 /bin/bash -c "
+            apt-get update -qq &&
+            apt-get install -y python3-virtualenv dpkg-dev &&
+            mkdir build &&
+            ./.build.sh"
       - name: Upload Debian Package for armv7
         uses: actions/upload-artifact@v4
         with:
@@ -85,18 +96,19 @@ jobs:
 
   build_s390x:
     runs-on: ubuntu-latest
-    needs: build_armv7
-    container:
-      image: s390x/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: Create Debian Package for s390x
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
-          mkdir build
-          ./.build.sh
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx build --platform linux/s390x -t myimage:s390x .
+          docker run --rm myimage:s390x /bin/bash -c "
+            apt-get update -qq &&
+            apt-get install -y python3-virtualenv dpkg-dev &&
+            mkdir build &&
+            ./.build.sh"
       - name: Upload Debian Package for s390x
         uses: actions/upload-artifact@v4
         with:
@@ -105,18 +117,19 @@ jobs:
 
   build_ppc64le:
     runs-on: ubuntu-latest
-    needs: build_s390x
-    container:
-      image: ppc64le/ubuntu:latest
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
       - name: Create Debian Package for ppc64le
         run: |
-          apt-get update -qq
-          apt-get install -y python3-virtualenv dpkg-dev
-          mkdir build
-          ./.build.sh
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+          docker buildx build --platform linux/ppc64le -t myimage:ppc64le .
+          docker run --rm myimage:ppc64le /bin/bash -c "
+            apt-get update -qq &&
+            apt-get install -y python3-virtualenv dpkg-dev &&
+            mkdir build &&
+            ./.build.sh"
       - name: Upload Debian Package for ppc64le
         uses: actions/upload-artifact@v4
         with:
