@@ -280,6 +280,22 @@ class path:
         from .pymainprocess import path_is_dir as _is_dir
         return _is_dir(path)
 
+    @staticmethod
+    def basename(path: str) -> str:
+        """
+        Get the Basename from an Path.
+        """
+        from .pymainprocess import path_basename as _basename
+        return _basename(path)
+
+    @staticmethod
+    def splitext(path: str) -> tuple:
+        """
+        Split an Path into a Tuple with Basename and Extension.
+        """
+        from .pymainprocess import path_splitext as _splitext
+        return _splitext(path)
+
 path = path()
 
 __all__.append("path")
@@ -367,3 +383,17 @@ def makedir(path: str, exist_ok: bool = False):
     """
     from .pymainprocess import mkdir as _mkdir
     _mkdir(path, exist_ok)
+
+def copy(src: str, dest: str):
+    """
+    Copy Files from src to dest
+    """
+    from .pymainprocess import copy as _copy
+    if src == dest:
+        raise ProcessBaseError("Source and Destination are the same.")
+    if path.is_dir(src):
+        _copy(src, dest, is_dir=True)
+    else:
+        _copy(src, dest, is_dir=False)
+
+__all__.append("copy")

@@ -4,6 +4,8 @@ use pyo3::exceptions::PyException;
 use pyo3::create_exception;
 use which::which;
 use std::ffi::CString;
+use std::fs;
+use fs_extra::dir::{copy as copy_dir, CopyOptions};
 use dotenv::dotenv;
 use std::io::{BufRead};
 use sys_info;
@@ -206,6 +208,26 @@ fn path_is_dir(path: &str) -> PyResult<bool> {
     Ok(_path.is_dir())
 }
 
+#[pyfunction]
+fn path_basename(path: &str) -> PyResult<String> {
+    let _path = std::path::Path::new(path);
+    Ok(_path.file_name().unwrap().to_str().unwrap().to_string())
+}
+
+#[pyfunction]
+fn path_splitext(path: &str) -> PyResult<(String, String)> {
+    let _path = std::path::Path::new(path);
+    let base = _path.file_stem()
+        .and_then(|s| s.to_str())
+        .ok_or_else(|| ProcessBaseError::new_err("Failed to get file stem".to_string()))?
+        .to_string();
+    let ext = _path.extension()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_string();
+    Ok((base, ext))
+}
+
 #[cfg(any(target_os = "unix", target_os = "linux"))]
 #[pyfunction]
 fn py_fork() -> PyResult<i32> {
@@ -315,6 +337,17 @@ fn mkdir(path: &str, exist_ok: bool) -> PyResult<()> {
     Ok(())
 }
 
+#[pyfunction]
+fn copy(src: &str, dest: &str, is_dir: bool) -> PyResult<()> {
+    if is_dir {
+        let options = CopyOptions::new(); // Verwende Standardoptionen
+        copy_dir(src, dest, &options).map_err(|e| ProcessBaseError::new_err(format!("Failed to copy directory: {}", e)))?;
+    } else {
+        fs::copy(src, dest).map_err(|e| ProcessBaseError::new_err(format!("Failed to copy file: {}", e)))?;
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -327,6 +360,8 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(path_exists, m)?)?;
     m.add_function(wrap_pyfunction!(path_is_file, m)?)?;
     m.add_function(wrap_pyfunction!(path_is_dir, m)?)?;
+    m.add_function(wrap_pyfunction!(path_basename, m)?)?;
+    m.add_function(wrap_pyfunction!(path_splitext, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
     m.add_function(wrap_pyfunction!(py_fork, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
@@ -340,6 +375,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(env_os_data, m)?)?;
     m.add_function(wrap_pyfunction!(chdir, m)?)?;
     m.add_function(wrap_pyfunction!(mkdir, m)?)?;
+    m.add_function(wrap_pyfunction!(copy, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;
