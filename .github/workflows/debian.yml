@@ -17,7 +17,6 @@ jobs:
           apt-get install -y tar xz-utils binutils python3-virtualenv
           mkdir build
           ./.build.sh
-          mv build/python3-pymainprocess.deb build/python3-pymainprocess-amd64.deb
       - name: Upload Debian Package for x86_64
         uses: actions/upload-artifact@v4
         with:
