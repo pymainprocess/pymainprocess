@@ -299,6 +299,12 @@ fn py_exit(code: PyInt) -> PyResult<()> {
     std::process::exit(code as i32);
 }
 
+#[pyfunction]
+fn chdir(path: &str) -> PyResult<()> {
+    std::env::set_current_dir(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to change directory: {}", e)))?;
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -322,6 +328,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_exit, m)?)?;
     m.add_function(wrap_pyfunction!(env_reset, m)?)?;
     m.add_function(wrap_pyfunction!(env_os_data, m)?)?;
+    m.add_function(wrap_pyfunction!(chdir, m)?)?;
     m.add("ProcessBaseError", m.py().get_type::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type::<UnixOnly>())?;

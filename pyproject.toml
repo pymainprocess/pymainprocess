@@ -7,7 +7,7 @@ build-backend = "maturin"
 
 [project]
 name = "pymainprocess"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python Process Module, written in Python and Rust"
 license = "MIT"
 authors = [

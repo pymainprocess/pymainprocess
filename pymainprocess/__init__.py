@@ -351,3 +351,12 @@ def exit(code: int):
     _exit(code)
 
 __all__.append("exit")
+
+def chdir(path: str = getcwd()):
+    """
+    Change the Current Workdir, default is the Current Workdir py starting Script, Shell.
+    """
+    from .pymainprocess import chdir as _chdir
+    _chdir(path)
+
+__all__.append("chdir")
