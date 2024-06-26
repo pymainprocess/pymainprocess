@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cdir=$(pwd)
+
 # Install sudo if not already installed
 apt-get update -qq
 apt-get install -y sudo
@@ -74,6 +76,6 @@ cd  "\${cdir}"
 EOF
 
 # Move the created package to the expected directory
-mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb build/
-chown $TEMP_USER:$TEMP_USER build/python3-pymainprocess-*.deb
+mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb ${cdir}/build/
+chown $TEMP_USER:$TEMP_USER ${cdir}/build/python3-pymainprocess-*.deb
 rm -rf ${TEMP_DIR}
