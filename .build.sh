@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cdir=$(pwd)
-
 # Install sudo if not already installed
 apt-get update -qq
 apt-get install -y sudo
@@ -48,7 +46,8 @@ pip install pymainprocess --target "\${location}"
 
 size=\$(du -sk "\${build}/lib" | awk '{print \$1}')
 
-cat <<CONTROL > control
+mkdir -p DEBIAN
+cat <<CONTROL > DEBIAN/control
 Package: \${name}
 Version: \${version}
 Section: utils
@@ -61,21 +60,12 @@ Description: \${description}
 
 CONTROL
 
-tar -cJf control.tar.xz ./control
-tar -cJf data.tar.xz ./lib
-
-rm -rf ./control ./lib
-
-echo 2.0 > debian-binary
-
-ar rcs "\${package}" debian-binary control.tar.xz data.tar.xz
-
-rm -rf debian-binary control.tar.xz data.tar.xz 
+dpkg-deb --build \${build} \${package}
 
 cd  "\${cdir}"
 EOF
 
 # Move the created package to the expected directory
-mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb ${cdir}/build/
-chown $TEMP_USER:$TEMP_USER ${cdir}/build/python3-pymainprocess-*.deb
+mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb build/
+chown $TEMP_USER:$TEMP_USER build/python3-pymainprocess-*.deb
 rm -rf ${TEMP_DIR}
