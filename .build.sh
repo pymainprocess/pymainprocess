@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# Install sudo if not already installed
+apt-get update -qq
+apt-get install -y sudo
+
+# Create a temporary user
+TEMP_USER="tempuser"
+useradd -m -s /bin/bash $TEMP_USER
+echo "$TEMP_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Run the rest of the script as the temporary user
+sudo -u $TEMP_USER bash << 'EOF'
+set -e
+
 arch=$(dpkg --print-architecture)
 
 cdir=$(pwd)
@@ -29,7 +42,7 @@ pip install pymainprocess --target "${location}"
 
 size=$(du -sk "${build}/lib" | awk '{print $1}')
 
-cat <<EOF > control
+cat <<CONTROL > control
 Package: ${name}
 Version: ${version}
 Section: utils
@@ -40,7 +53,7 @@ Depends: python3
 Maintainer: ${maintainer}
 Description: ${description}
 
-EOF
+CONTROL
 
 tar -cJf control.tar.xz ./control
 tar -cJf data.tar.xz ./lib
@@ -54,3 +67,4 @@ ar rcs "${package}" debian-binary control.tar.xz data.tar.xz
 rm -rf debian-binary control.tar.xz data.tar.xz 
 
 cd  "${cdir}"
+EOF
