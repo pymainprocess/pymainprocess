@@ -554,7 +554,7 @@ user = user()
 
 __all__.append("user")
 
-def chmod(path: str, mode: str):
+def chmod(path: str, mode: any):
     """
     Change the Mode of a File or Dir.
     """
@@ -562,6 +562,15 @@ def chmod(path: str, mode: str):
     from platform import system as _sys
     if _sys().lower() == "windows":
         raise UnixOnly("This Action is only for Unix.")
+    if not isinstance(mode, (str, int, float)):
+        raise ProcessBaseError("Mode must be a string, int or float.")
+    if isinstance(mode, float):
+        mode = int(mode)
+    if isinstance(mode, str):
+        try:
+            mode = int(mode)
+        except ValueError:
+            raise ProcessBaseError("Mode must be a string, int or float.")
     _chmod(path, mode)
 
 def chown(path: str, uid: int, gid: int):
