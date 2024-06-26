@@ -104,6 +104,9 @@ def sudo(command: any, user: str = 'root', stdout: bool = False, stderr: bool = 
     """
     Execute a Command as Sudo and user if user given.
     """
+    from platform import system as _sys
+    if _sys().lower() == "windows":
+        raise WindowsOnly("This Action is only for Unix.")
     from .pymainprocess import sudo as _sudo1
     from .pymainprocess import sudo_and_safe as _sudo2
     if not isinstance(command, (list, str)):
@@ -473,11 +476,11 @@ class user:
         """
         Add a User.
         """
-        from .pymainprocess import useradd as _useradd1
-        from .pymainprocess import useradd_with_sudo as _useradd2
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import useradd as _useradd1
+        from .pymainprocess import useradd_with_sudo as _useradd2
         if use_sudo:
             _useradd2(username, password)
         else:
@@ -493,11 +496,11 @@ class user:
         """
         Delete a User.
         """
-        from .pymainprocess import userdel as _userdel1
-        from .pymainprocess import userdel_with_sudo as _userdel2
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import userdel as _userdel1
+        from .pymainprocess import userdel_with_sudo as _userdel2
         if use_sudo:
             _userdel2(username)
         else:
@@ -511,10 +514,10 @@ class user:
         """
         Get the UID of the Current User.
         """
-        from .pymainprocess import get_uid as _get_uid
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import get_uid as _get_uid
         return _get_uid()
     
     @staticmethod
@@ -522,10 +525,10 @@ class user:
         """
         Get the GID of the Current User.
         """
-        from .pymainprocess import get_gid as _get_gid
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import get_gid as _get_gid
         return _get_gid()
 
     @staticmethod
@@ -533,21 +536,21 @@ class user:
         """
         Get the EUID of the Current User.
         """
-        from .pymainprocess import get_euid as _get_euid
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import get_euid as _get_euid
         return _get_euid()
     
     @staticmethod
     def egid() -> int:
         """
         Get the EGID of the Current User.
-        """
-        from .pymainprocess import get_egid as _get_egid
+        """  
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
+        from .pymainprocess import get_egid as _get_egid
         return _get_egid()
 
 user = user()
@@ -558,10 +561,10 @@ def chmod(path: str, mode: any):
     """
     Change the Mode of a File or Dir.
     """
-    from .pymainprocess import chmod as _chmod
     from platform import system as _sys
     if _sys().lower() == "windows":
         raise UnixOnly("This Action is only for Unix.")
+    from .pymainprocess import chmod as _chmod
     if not isinstance(mode, (str, int, float)):
         raise ProcessBaseError("Mode must be a string, int or float.")
     if isinstance(mode, float):
@@ -577,8 +580,8 @@ def chown(path: str, uid: int, gid: int):
     """
     Change the Owner of a File or Dir.
     """
-    from .pymainprocess import chown as _chown
     from platform import system as _sys
     if _sys().lower() == "windows":
         raise UnixOnly("This Action is only for Unix.")
+    from .pymainprocess import chown as _chown
     _chown(path, uid, gid)
