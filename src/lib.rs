@@ -14,6 +14,9 @@ use sys_info;
 use std::env;
 use pytype::PyInt;
 
+#[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
+use std::os::unix::fs::MetadataExt;
+
 create_exception!(pymainprocess, ProcessBaseError, PyException);
 create_exception!(pymainprocess, CommandFailed, ProcessBaseError);
 create_exception!(pymainprocess, UnixOnly, ProcessBaseError);
@@ -587,7 +590,38 @@ fn download(url: &str, output: &str, curl: bool, silent: bool) -> PyResult<()> {
     }
 }
 
+#[pyfunction]
+fn path_split(path: &str) -> PyResult<Vec<String>> {
+    let path = std::path::Path::new(path);
+    let components: Vec<String> = path
+        .components()
+        .map(|comp| comp.as_os_str().to_string_lossy().to_string())
+        .collect();
+    Ok(components)
+}
 
+#[pyfunction]
+fn path_realpath(path: &str) -> PyResult<String> {
+    let path = std::path::Path::new(path);
+    let realpath = path.canonicalize()?;
+    Ok(realpath.to_string_lossy().to_string())
+}
+
+#[pyfunction]
+fn path_islink(path: &str) -> PyResult<bool> {
+    let path = std::path::Path::new(path);
+    let metadata = path.symlink_metadata()?; // Verwende symlink_metadata, um Symbolic Links zu erkennen
+    Ok(metadata.file_type().is_symlink())
+}
+
+#[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
+#[pyfunction]
+fn path_ismount(path: &str) -> PyResult<bool> {
+    let path = std::path::Path::new(path);
+    let metadata = path.metadata()?;
+    let parent_metadata = path.parent().ok_or_else(|| ProcessBaseError::new_err("Failed to get parent directory".to_string()))?.metadata()?;
+    Ok(metadata.dev() != parent_metadata.dev())
+}
 
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -604,6 +638,11 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(path_basename, m)?)?;
     m.add_function(wrap_pyfunction!(path_splitext, m)?)?;
     m.add_function(wrap_pyfunction!(path_walk, m)?)?;
+    m.add_function(wrap_pyfunction!(path_split, m)?)?;
+    m.add_function(wrap_pyfunction!(path_realpath, m)?)?;
+    m.add_function(wrap_pyfunction!(path_islink, m)?)?;
+    #[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
+    m.add_function(wrap_pyfunction!(path_ismount, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]
     m.add_function(wrap_pyfunction!(py_fork, m)?)?;
     #[cfg(any(target_os = "unix", target_os = "linux"))]

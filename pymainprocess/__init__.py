@@ -355,6 +355,41 @@ class path:
         
         return filtered_result
 
+    @staticmethod
+    def split(path: str) -> list:
+        """
+        Split an Path into a List.
+        """
+        from .pymainprocess import path_split as _split
+        return _split(path)
+
+    @staticmethod
+    def realpath(path: str) -> str:
+        """
+        Get the Real Path of a Path.
+        """
+        from .pymainprocess import path_realpath as _realpath
+        return _realpath(path)
+
+    @staticmethod
+    def islink(path: str) -> bool:
+        """
+        Check if the Path is a Symbolic Link or not.
+        """
+        from .pymainprocess import path_islink as _islink
+        return _islink(path)
+
+    @staticmethod
+    def ismount(path: str) -> bool:
+        """
+        Check if the Path is a Mount or not.
+        """
+        from platform import system as _sys
+        if _sys().lower() == "windows":
+            raise UnixOnly("This Action is only for Unix.")
+        from .pymainprocess import path_ismount as _ismount
+        return _ismount(path)
+
 path = path()
 
 __all__.append("path")
