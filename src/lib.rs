@@ -385,6 +385,16 @@ fn copy(src: &str, dest: &str, is_dir: bool) -> PyResult<()> {
     Ok(())
 }
 
+#[pyfunction]
+fn remove(path: &str, is_dir: bool) -> PyResult<()> {
+    if is_dir {
+        std::fs::remove_dir_all(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to remove directory: {}", e)))?;
+    } else {
+        std::fs::remove_file(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to remove file: {}", e)))?;
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -414,6 +424,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(chdir, m)?)?;
     m.add_function(wrap_pyfunction!(mkdir, m)?)?;
     m.add_function(wrap_pyfunction!(copy, m)?)?;
+    m.add_function(wrap_pyfunction!(remove, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

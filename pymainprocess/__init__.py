@@ -453,3 +453,13 @@ def copy(src: str, dest: str):
         _copy(src, dest, is_dir=False)
 
 __all__.append("copy")
+
+def remove(filepath: str):
+    """
+    Remove the File or Dir.
+    """
+    from .pymainprocess import remove as _remove
+    if path.is_dir(filepath):
+        _remove(filepath, is_dir=True)
+    else:
+        _remove(filepath, is_dir=False)
