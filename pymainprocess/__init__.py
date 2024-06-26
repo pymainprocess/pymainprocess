@@ -533,3 +533,7 @@ class user:
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
         return _get_egid()
+
+user = user()
+
+__all__.append("user")
