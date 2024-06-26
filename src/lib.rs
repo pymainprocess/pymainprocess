@@ -507,6 +507,33 @@ fn get_egid() -> PyResult<PyInt> {
     Ok(egid as PyInt)
 }
 
+#[cfg(any(target_os = "linux", target_os = "unix"))]
+#[pyfunction]
+fn chmod(path: &str, mode: u32) -> PyResult<()> {
+    use std::os::unix::fs::PermissionsExt;
+    use std::fs;
+
+    let metadata = fs::metadata(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to get metadata: {}", e)))?;
+    let mut permissions = metadata.permissions();
+    permissions.set_mode(mode);
+    fs::set_permissions(path, permissions).map_err(|e| ProcessBaseError::new_err(format!("Failed to change mode: {}", e)))?;
+    Ok(())
+}
+
+#[cfg(any(target_os = "linux", target_os = "unix"))]
+#[pyfunction]
+fn chown(path: &str, uid: u32, gid: u32) -> PyResult<()> {
+    use std::ffi::CString;
+    use libc;
+
+    let c_path = CString::new(path).map_err(|e| ProcessBaseError::new_err(format!("Failed to convert path: {}", e)))?;
+    let result = unsafe { libc::chown(c_path.as_ptr(), uid, gid) };
+    if result == -1 {
+        return Err(ProcessBaseError::new_err(format!("Failed to change owner: {}", std::io::Error::last_os_error())));
+    }
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -542,6 +569,10 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_euid, m)?)?;
     #[cfg(target_os = "linux")]
     m.add_function(wrap_pyfunction!(get_egid, m)?)?;
+    #[cfg(any(target_os = "linux", target_os = "unix"))]
+    m.add_function(wrap_pyfunction!(chmod, m)?)?;
+    #[cfg(any(target_os = "linux", target_os = "unix"))]
+    m.add_function(wrap_pyfunction!(chown, m)?)?;
     m.add_function(wrap_pyfunction!(env_get, m)?)?;
     m.add_function(wrap_pyfunction!(env_get_from_file, m)?)?;
     m.add_function(wrap_pyfunction!(env_set, m)?)?;

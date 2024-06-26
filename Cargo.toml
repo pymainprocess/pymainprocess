@@ -1,6 +1,6 @@
 [package]
 name = "pymainprocess"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python Process Module"
 license = "MIT"
 authors = ["Kevin Alexander Krefting <kevin@krefting.com>"]

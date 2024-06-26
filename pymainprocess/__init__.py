@@ -505,7 +505,7 @@ class user:
         if remove_sudoers:
             _sudoers = path.join('/', 'etc', 'sudoers.d')
             remove(path.join(_sudoers, username))
-            
+
     @staticmethod
     def uid() -> int:
         """
@@ -553,3 +553,23 @@ class user:
 user = user()
 
 __all__.append("user")
+
+def chmod(path: str, mode: str):
+    """
+    Change the Mode of a File or Dir.
+    """
+    from .pymainprocess import chmod as _chmod
+    from platform import system as _sys
+    if _sys().lower() == "windows":
+        raise UnixOnly("This Action is only for Unix.")
+    _chmod(path, mode)
+
+def chown(path: str, uid: int, gid: int):
+    """
+    Change the Owner of a File or Dir.
+    """
+    from .pymainprocess import chown as _chown
+    from platform import system as _sys
+    if _sys().lower() == "windows":
+        raise UnixOnly("This Action is only for Unix.")
+    _chown(path, uid, gid)
