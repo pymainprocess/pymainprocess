@@ -423,8 +423,51 @@ fn useradd(username: &str, password: &str) -> PyResult<()> {
 
 #[cfg(target_os = "linux")]
 #[pyfunction]
+fn useradd_with_sudo(username: &str, password: &str) -> PyResult<()> {
+    let shell = if which("bash").is_ok() {
+        which("bash").unwrap()
+    } else {
+        which("sh").unwrap()
+    };
+
+    let status = Command::new("sudo")
+        .arg("useradd")
+        .arg("-m")
+        .arg("-p")
+        .arg(password)
+        .arg("-s")
+        .arg(shell)
+        .arg(username)
+        .status()
+        .map_err(|e| ProcessBaseError::new_err(format!("Failed to create user: {}", e)))?;
+
+    if !status.success() {
+        return Err(ProcessBaseError::new_err("Failed to create user".to_string()));
+    }
+
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+#[pyfunction]
 fn userdel(username: &str) -> PyResult<()> {
     let status = Command::new("userdel")
+        .arg(username)
+        .status()
+        .map_err(|e| ProcessBaseError::new_err(format!("Failed to delete user: {}", e)))?;
+
+    if !status.success() {
+        return Err(ProcessBaseError::new_err("Failed to delete user".to_string()));
+    }
+
+    Ok(())
+}
+
+#[cfg(target_os = "linux")]
+#[pyfunction]
+fn userdel_with_sudo(username: &str) -> PyResult<()> {
+    let status = Command::new("sudo")
+        .arg("userdel")
         .arg(username)
         .status()
         .map_err(|e| ProcessBaseError::new_err(format!("Failed to delete user: {}", e)))?;
@@ -486,7 +529,11 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     #[cfg(target_os = "linux")]
     m.add_function(wrap_pyfunction!(useradd, m)?)?;
     #[cfg(target_os = "linux")]
+    m.add_function(wrap_pyfunction!(useradd_with_sudo, m)?)?;
+    #[cfg(target_os = "linux")]
     m.add_function(wrap_pyfunction!(userdel, m)?)?;
+    #[cfg(target_os = "linux")]
+    m.add_function(wrap_pyfunction!(userdel_with_sudo, m)?)?;
     #[cfg(target_os = "linux")]
     m.add_function(wrap_pyfunction!(get_uid, m)?)?;
     #[cfg(target_os = "linux")]

@@ -469,27 +469,43 @@ class user:
     Class to Works with user.
     """
     @staticmethod
-    def add(username: str, password: str):
+    def add(username: str, password: str, use_sudo: bool = False, add_sudoers: bool = False):
         """
         Add a User.
         """
-        from .pymainprocess import useradd as _useradd
+        from .pymainprocess import useradd as _useradd1
+        from .pymainprocess import useradd_with_sudo as _useradd2
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
-        _useradd(username, password)
+        if use_sudo:
+            _useradd2(username, password)
+        else:
+            _useradd1(username, password)
+        if add_sudoers:
+            _sudoers = path.join('/', 'etc', 'sudoers.d')
+            makedir(_sudoers, exist_ok=True)
+            with open(path.join(_sudoers, username), 'w') as f:
+                f.write(f"{username} ALL=(root) ALL")
 
     @staticmethod
-    def delete(username: str):
+    def delete(username: str, use_sudo: bool = False, remove_sudoers: bool = False):
         """
         Delete a User.
         """
-        from .pymainprocess import userdel as _userdel
+        from .pymainprocess import userdel as _userdel1
+        from .pymainprocess import userdel_with_sudo as _userdel2
         from platform import system as _sys
         if _sys().lower() != "linux":
             raise UnixOnly("This Action is only for Linux.")
-        _userdel(username)
-    
+        if use_sudo:
+            _userdel2(username)
+        else:
+            _userdel1(username)
+        if remove_sudoers:
+            _sudoers = path.join('/', 'etc', 'sudoers.d')
+            remove(path.join(_sudoers, username))
+            
     @staticmethod
     def uid() -> int:
         """
