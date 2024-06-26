@@ -10,7 +10,8 @@ useradd -m -s /bin/bash $TEMP_USER
 echo "$TEMP_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Create a temporary directory
-TEMP_DIR=$(mktemp -d)
+TEMP_DIR=$(mktemp -d -p /tmp)
+chown $TEMP_USER:$TEMP_USER $TEMP_DIR
 
 # Run the rest of the script as the temporary user
 sudo -u $TEMP_USER bash << EOF
@@ -74,4 +75,5 @@ EOF
 
 # Move the created package to the expected directory
 mv ${TEMP_DIR}/build/python3-pymainprocess-*.deb build/
+chown $TEMP_USER:$TEMP_USER build/python3-pymainprocess-*.deb
 rm -rf ${TEMP_DIR}
