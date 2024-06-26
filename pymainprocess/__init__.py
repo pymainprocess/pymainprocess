@@ -463,3 +463,73 @@ def remove(filepath: str):
         _remove(filepath, is_dir=True)
     else:
         _remove(filepath, is_dir=False)
+
+class user:
+    """
+    Class to Works with user.
+    """
+    @staticmethod
+    def add(username: str, password: str):
+        """
+        Add a User.
+        """
+        from .pymainprocess import useradd as _useradd
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        _useradd(username, password)
+
+    @staticmethod
+    def delete(username: str):
+        """
+        Delete a User.
+        """
+        from .pymainprocess import userdel as _userdel
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        _userdel(username)
+    
+    @staticmethod
+    def uid() -> int:
+        """
+        Get the UID of the Current User.
+        """
+        from .pymainprocess import get_uid as _get_uid
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        return _get_uid()
+    
+    @staticmethod
+    def gid() -> int:
+        """
+        Get the GID of the Current User.
+        """
+        from .pymainprocess import get_gid as _get_gid
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        return _get_gid()
+
+    @staticmethod
+    def euid() -> int:
+        """
+        Get the EUID of the Current User.
+        """
+        from .pymainprocess import get_euid as _get_euid
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        return _get_euid()
+    
+    @staticmethod
+    def egid() -> int:
+        """
+        Get the EGID of the Current User.
+        """
+        from .pymainprocess import get_egid as _get_egid
+        from platform import system as _sys
+        if _sys().lower() != "linux":
+            raise UnixOnly("This Action is only for Linux.")
+        return _get_egid()
