@@ -843,3 +843,7 @@ class Styling:
         if isinstance(code, float):
             code = int(code)
         return _get_style(code)
+
+Styling = Styling()
+
+__all__.append("Styling")

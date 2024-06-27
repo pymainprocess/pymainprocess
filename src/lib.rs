@@ -756,17 +756,17 @@ fn get_color(_code: PyInt, back: bool) -> PyResult<String> {
     let code = _code as i32;
     let __color = if back {
         if code == -1 {
-            "\033[0m".to_string()
+            "\x1b[0m".to_string()
         } else if code < 10 {
-            format!("\033[4{}m", code)
+            format!("\x1b[4{}m", code)
         } else {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid color code"));
         }
     } else {
         if code == -1 {
-            "\033[0m".to_string()
+            "\x1b[0m".to_string()
         } else if code < 10 {
-            format!("\033[3{}m", code)
+            format!("\x1b[3{}m", code)
         } else {
             return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid color code"));
         }
@@ -778,9 +778,9 @@ fn get_color(_code: PyInt, back: bool) -> PyResult<String> {
 fn get_style(_code: PyInt) -> PyResult<String> {
     let code = _code as i32;
     let __style = if code == -1 {
-        "\033[0m".to_string()
+        "\x1b[0m".to_string()
     } else if code < 10 {
-        format!("\033[{}m", code)
+        format!("\x1b[{}m", code)
     } else {
         return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid style code"));
     };
