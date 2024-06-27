@@ -799,9 +799,47 @@ argv = get_argv()
 
 __all__.append("get_argv")
 
-def process(command: str) -> int:
+class Styling:
     """
-    Call the Child Process on windows and unix
+    Class to work with Styling.
     """
-    from .pymainprocess import py_process as _process
-    return _process(command)
+    @staticmethod
+    def get_color(code: int, background: bool = False) -> str:
+        """
+        Get the ANSI Escape from the Given color code.
+        Codes
+        - -1 ==> Reset
+        - 0 ==> Black
+        - 1 ==> Red
+        - 2 ==> Green
+        - 3 ==> Yellow
+        - 4 ==> Blue
+        - 5 ==> Magenta
+        - 6 ==> Cyan
+        - 7 ==> White
+        """
+        from .pymainprocess import get_color as _get_color
+        return _get_color(code, background)
+    
+    @staticmethod
+    def get_style(code: any) -> str:
+        """
+        Get the ANSI Escape from the Given Style code.
+        Codes
+        - -1 ==> Reset
+        - 0 ==> Bold
+        - 1 ==> Dim
+        - 2 ==> Italic
+        - 3 ==> Underline
+        - 4 ==> Blink
+        - 5 ==> Fast Blink
+        - 6 ==> Reverse
+        - 7 ==> Concealed
+        - 8 ==> Crossed Out
+        """
+        from .pymainprocess import get_style as _get_style
+        if not isinstance(code, (int, float)):
+            raise ProcessBaseError("Code must be a Number.")
+        if isinstance(code, float):
+            code = int(code)
+        return _get_style(code)

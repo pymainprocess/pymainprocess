@@ -751,6 +751,42 @@ fn get_argv(python: bool) -> PyResult<Vec<String>> {
     }
 }
 
+#[pyfunction]
+fn get_color(_code: PyInt, back: bool) -> PyResult<String> {
+    let code = _code as i32;
+    let __color = if back {
+        if code == -1 {
+            "\033[0m".to_string()
+        } else if code < 10 {
+            format!("\033[4{}m", code)
+        } else {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid color code"));
+        }
+    } else {
+        if code == -1 {
+            "\033[0m".to_string()
+        } else if code < 10 {
+            format!("\033[3{}m", code)
+        } else {
+            return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid color code"));
+        }
+    };
+    Ok(__color)
+}
+
+#[pyfunction]
+fn get_style(_code: PyInt) -> PyResult<String> {
+    let code = _code as i32;
+    let __style = if code == -1 {
+        "\033[0m".to_string()
+    } else if code < 10 {
+        format!("\033[{}m", code)
+    } else {
+        return Err(PyErr::new::<pyo3::exceptions::PyValueError, _>("Invalid style code"));
+    };
+    Ok(__style)
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -818,6 +854,8 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_pip_version, m)?)?;
     m.add_function(wrap_pyfunction!(system, m)?)?;
     m.add_function(wrap_pyfunction!(get_argv, m)?)?;
+    m.add_function(wrap_pyfunction!(get_color, m)?)?;
+    m.add_function(wrap_pyfunction!(get_style, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;
