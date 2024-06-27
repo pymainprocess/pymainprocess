@@ -484,6 +484,28 @@ class environ:
         """
         from .pymainprocess import env_os_data as _os_data
         return _os_data(data)
+    
+    @staticmethod
+    def python_version(only_version: bool = True) -> str:
+        """
+        Get the Version of the Python Interpreter.
+        """
+        from .pymainprocess import get_python_version as _get_python_version
+        _raw = _get_python_version()
+        if only_version:
+            _list = _raw.split(" ")
+            _version = _list[0]
+            return _version
+        else:
+            return _raw
+
+    @staticmethod
+    def pip_version() -> str:
+        """
+        Get the Version of the Pip Package Manager.
+        """
+        from .pymainprocess import get_pip_version as _get_pip_version
+        return _get_pip_version()
 
 environ = environ()
 
@@ -623,22 +645,6 @@ class user:
             raise UnixOnly("This Action is only for Linux.")
         from .pymainprocess import get_egid as _get_egid
         return _get_egid()
-
-    @staticmethod
-    def python_version() -> str:
-        """
-        Get the Version of the Python Interpreter.
-        """
-        from .pymainprocess import get_python_version as _get_python_version
-        return _get_python_version()
-
-    @staticmethod
-    def pip_version() -> str:
-        """
-        Get the Version of the Pip Package Manager.
-        """
-        from .pymainprocess import get_pip_version as _get_pip_version
-        return _get_pip_version()
 
 user = user()
 
