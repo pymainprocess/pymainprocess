@@ -844,6 +844,17 @@ class Styling:
             code = int(code)
         return _get_style(code)
 
+    @staticmethod
+    def sprint(text: str, fcolor: int = -1, bcolor: int = -1, style: int = -1):
+        """
+        Print a Text with a Color and Style.
+        """
+        fcolor = Styling.get_color(code=fcolor)
+        bcolor = Styling.get_color(code=bcolor, background=True)
+        style = Styling.get_style(code=style)
+        print(f"{style}{fcolor}{bcolor}{text}{Styling.get_color(code=-1)}{Styling.get_color(code=-1, background=True)}{Styling.get_style(code=-1)}")
+            
+
 Styling = Styling()
 
 __all__.append("Styling")
