@@ -673,6 +673,19 @@ fn cleanup_temp_path(path: &str, is_dir: bool) -> PyResult<()> {
     Ok(())
 }
 
+#[pyfunction]
+fn path_symlink(original: &str, link: &str) -> PyResult<()> {
+    #[cfg(target_os = "windows")]
+    std::os::windows::fs::symlink_file(original, link)
+        .map_err(|e| ProcessBaseError::new_err(format!("Failed to create symlink: {}", e)))?;
+    
+    #[cfg(not(target_os = "windows"))]
+    std::os::unix::fs::symlink(original, link)
+        .map_err(|e| ProcessBaseError::new_err(format!("Failed to create symlink: {}", e)))?;
+    
+    Ok(())
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -735,6 +748,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(create_temp_dir, m)?)?;
     m.add_function(wrap_pyfunction!(get_temp_path, m)?)?;
     m.add_function(wrap_pyfunction!(cleanup_temp_path, m)?)?;
+    m.add_function(wrap_pyfunction!(path_symlink, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

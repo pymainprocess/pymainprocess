@@ -143,7 +143,7 @@ def getcwd() -> str:
 
 __all__.append("getcwd")
 
-def listdir(path: str = getcwd()) -> list:
+def listdir(path: str = getcwd(), use_sudo: bool = False) -> list:
     """
     List all Files in the Directory.
     """
@@ -155,7 +155,10 @@ def listdir(path: str = getcwd()) -> list:
         stdout = call(f"ls -A {path}", stdout=True)
         return stdout.split("\n")
     elif _sys().lower() == "linux":
-        stdout = call(f"ls -A {path}", stdout=True)
+        if use_sudo:
+            stdout = sudo(f"ls -A {path}", stdout=True)
+        else:
+            stdout = call(f"ls -A {path}", stdout=True)
         return stdout.split("\n")
 
 __all__.append("listdir")
@@ -397,6 +400,31 @@ class path:
         """
         from .pymainprocess import path_splitroot as _splitroot
         return _splitroot(path)
+
+    @staticmethod
+    def symlink(original: any, link: any):
+        """
+        Create an Symlink.
+        """
+        from .pymainprocess import path_symlink as _symlink
+        if not isinstance(original, (str, list)):
+            raise ProcessBaseError("Original must be a string or a list.")
+        if not isinstance(link, (str, list)):
+            raise ProcessBaseError("Link must be a string or a list.")
+        if isinstance(original, list):
+            if isinstance(link, list):
+                if len(original) != len(link):
+                    raise ProcessBaseError("Original and Links must have the same length")
+                else:
+                    for i in range(len(original)):
+                        _symlink(original[i], link[i])
+            else:
+                raise ProcessBaseError("You must pass str and str or list and list")
+        elif isinstance(original, str):
+            if isinstance(link, str):
+                _symlink(original, link)
+            else:
+                raise ProcessBaseError("You must pass str and str or list and list")
 
 path = path()
 
