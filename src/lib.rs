@@ -704,6 +704,39 @@ fn path_symlink(original: &str, link: &str) -> PyResult<()> {
     Ok(())
 }
 
+#[pyfunction]
+fn system(command: &str, child: bool) -> PyResult<()> {
+    if child {
+        if cfg!(any(target_os = "linux", target_os = "unix", target_os = "macos")) {
+            Python::with_gil(|py| {
+                let os = py.import_bound("os")?;
+                let shlex = py.import_bound("shlex")?;
+                let args = shlex.call_method1("split", (command,))?.extract::<Vec<String>>()?;
+                let pid = os.call_method0("fork")?.extract::<i32>()?;
+                
+                if pid == 0 {
+                    // Child process
+                    let file = args[0].clone();
+                    let args = args.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
+                    os.call_method1("execvp", (file, args))?;
+                } else {
+                    // Parent process
+                    os.call_method1("wait", (pid,))?;
+                }
+                Ok(())
+            })
+        } else {
+            Err(PyException::new_err("Child process creation is not supported on this platform"))
+        }
+    } else {
+        Python::with_gil(|py| {
+            let os = py.import_bound("os")?;
+            os.call_method1("system", (command,))?;
+            Ok(())
+        })
+    }
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -769,6 +802,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(path_symlink, m)?)?;
     m.add_function(wrap_pyfunction!(get_python_version, m)?)?;
     m.add_function(wrap_pyfunction!(get_pip_version, m)?)?;
+    m.add_function(wrap_pyfunction!(system, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

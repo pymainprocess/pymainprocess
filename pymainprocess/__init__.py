@@ -768,3 +768,10 @@ class Temporary:
 Temporary = Temporary()
 
 __all__.append("Temporary")
+
+def system(command: str, child: bool = False):
+    """
+    Run a Command in the System.
+    """
+    from .pymainprocess import system as _system
+    _system(command, child)
