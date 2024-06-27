@@ -737,6 +737,20 @@ fn system(command: &str, child: bool) -> PyResult<()> {
     }
 }
 
+#[pyfunction]
+fn get_argv(python: bool) -> PyResult<Vec<String>> {
+    if python {
+        Python::with_gil(|py| {
+            let sys = py.import_bound("sys")?;
+            let argv: Vec<String> = sys.getattr("argv")?.extract()?;
+            Ok(argv)
+        })
+    } else {
+        let argv: Vec<String> = std::env::args().collect();
+        Ok(argv)
+    }
+}
+
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -803,6 +817,7 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_python_version, m)?)?;
     m.add_function(wrap_pyfunction!(get_pip_version, m)?)?;
     m.add_function(wrap_pyfunction!(system, m)?)?;
+    m.add_function(wrap_pyfunction!(get_argv, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

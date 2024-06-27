@@ -775,3 +775,22 @@ def system(command: str, child: bool = False):
     """
     from .pymainprocess import system as _system
     _system(command, child)
+
+def get_argv(position: any = None, rust: bool = True) -> any:
+    """
+    Get the Full Argv List or a Exactly Argument.
+    """
+    from .pymainprocess import get_argv as _argvget
+    if rust:
+        python = False
+    else:
+        python = True
+    if not position is None:
+        if not isinstance(position, (int, float)):
+            raise ValueError("position must be a Number.")
+        if isinstance(position, float):
+            position = int(position)
+        _args = _argvget(python)
+        return _args[position]
+    else:
+        return _argvget(python)
