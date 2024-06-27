@@ -14,46 +14,30 @@ Python Extension Module for the best System Interaction, based on Rust.
     <summary>Install with pip</summary>
     <ul>
         <li>
-            <h1>Install from pypi.org</h1>
+            <h2>Install from pypi.org</h2>
             <a href="https://pypi.org/project/pymainprocess/">pymainprocess</a>
-            <pre>
-                <code>
-                    pip install -U --no-cache-dir pymainprocess
-                </code>
-            </pre>
+            <pre><code>pip install -U --no-cache-dir pymainprocess</code></pre>
         </li>
         <li>
-            <h1>Install via git (Way 1)</h1>
-                <ol>
-                    <li>
-                        <h2>Install Rust (Only Unix)</h2>
-                        <pre>
-                            <code>
-                                curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-                            </code>
-                        </pre>
-                    </li>
-                    <li>
-                        <h2>Install Module with git</h2>
-                        <pre>
-                            <code>
-                                pip install git+https://github.com/pymainprocess/pymainprocess
-                            </code>
-                        </pre>
-                    </li>
-                </ol>
+            <h2>Install via git (Way 1)</h2>
+            <ol>
+                <li>
+                    <h3>Install Rust (Only Unix)</h3>
+                    <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+                </li>
+                <li>
+                    <h3>Install Module with git</h3>
+                    <pre><code>pip install git+https://github.com/pymainprocess/pymainprocess</code></pre>
+                </li>
+            </ol>
         </li>
         <li>
-            <h1>Install via git (Way 2)</h1>
+            <h2>Install via git (Way 2)</h2>
             <ol>
                 <li>Install Rust (Only Unix)</li>
                 <li>
-                    <h2>Install Module with git</h2>
-                    <pre>
-                        <code>
-                            pip install https://github.com/pymainprocess/pymainprocess/archive/master.zip
-                        </code>
-                    </pre>
+                    <h3>Install Module with git</h3>
+                    <pre><code>pip install https://github.com/pymainprocess/pymainprocess/archive/master.zip</code></pre>
                 </li>
             </ol>
         </li>
