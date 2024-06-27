@@ -674,6 +674,24 @@ fn cleanup_temp_path(path: &str, is_dir: bool) -> PyResult<()> {
 }
 
 #[pyfunction]
+fn get_python_version() -> PyResult<String> {
+    Python::with_gil(|py| {
+        let sys = py.import_bound("sys")?;
+        let version: String = sys.getattr("version")?.extract()?;
+        Ok(version)
+    })
+}
+
+#[pyfunction]
+fn get_pip_version() -> PyResult<String> {
+    Python::with_gil(|py| {
+        let pip = py.import_bound("pip")?;
+        let version: String = pip.getattr("__version__")?.extract()?;
+        Ok(version)
+    })
+}
+
+#[pyfunction]
 fn path_symlink(original: &str, link: &str) -> PyResult<()> {
     #[cfg(target_os = "windows")]
     std::os::windows::fs::symlink_file(original, link)
@@ -749,6 +767,8 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_temp_path, m)?)?;
     m.add_function(wrap_pyfunction!(cleanup_temp_path, m)?)?;
     m.add_function(wrap_pyfunction!(path_symlink, m)?)?;
+    m.add_function(wrap_pyfunction!(get_python_version, m)?)?;
+    m.add_function(wrap_pyfunction!(get_pip_version, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;

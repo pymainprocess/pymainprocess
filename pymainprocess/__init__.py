@@ -624,6 +624,22 @@ class user:
         from .pymainprocess import get_egid as _get_egid
         return _get_egid()
 
+    @staticmethod
+    def python_version() -> str:
+        """
+        Get the Version of the Python Interpreter.
+        """
+        from .pymainprocess import get_python_version as _get_python_version
+        return _get_python_version()
+
+    @staticmethod
+    def pip_version() -> str:
+        """
+        Get the Version of the Pip Package Manager.
+        """
+        from .pymainprocess import get_pip_version as _get_pip_version
+        return _get_pip_version()
+
 user = user()
 
 __all__.append("user")
@@ -647,6 +663,8 @@ def chmod(path: str, mode: any):
             raise ProcessBaseError("Mode must be a string, int or float.")
     _chmod(path, mode)
 
+__all__.append("chmod")
+
 def chown(path: str, uid: int, gid: int):
     """
     Change the Owner of a File or Dir.
@@ -657,12 +675,16 @@ def chown(path: str, uid: int, gid: int):
     from .pymainprocess import chown as _chown
     _chown(path, uid, gid)
 
+__all__.append("chown")
+
 def clear():
     """
     Clear the Terminal.
     """
     from .pymainprocess import clear as _clear
     _clear()
+
+__all__.append("clear")
 
 def download(url: str, output: str = 'default', curl: bool = False, silent: bool = False):
     """
@@ -675,6 +697,8 @@ def download(url: str, output: str = 'default', curl: bool = False, silent: bool
         _path = path.join(getcwd(), _name)
         output = _path
     _download(url, output, curl, silent)
+
+__all__.append("download")
 
 class Temporary:
     """
@@ -734,3 +758,7 @@ class Temporary:
         """
         from .pymainprocess import cleanup_temp_path as _cleanup_temp_path
         _cleanup_temp_path(self.path, self.is_dir)
+
+Temporary = Temporary()
+
+__all__.append("Temporary")
