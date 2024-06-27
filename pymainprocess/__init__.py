@@ -794,3 +794,7 @@ def get_argv(position: any = None, rust: bool = True) -> any:
         return _args[position]
     else:
         return _argvget(python)
+
+argv = get_argv()
+
+__all__.append("get_argv")
