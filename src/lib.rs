@@ -751,20 +751,6 @@ fn get_argv(python: bool) -> PyResult<Vec<String>> {
     }
 }
 
-#[cxx::bridge]
-mod ffi {
-    unsafe extern "C++" {
-        include!("src/call.hpp");
-
-        fn process(command: &str) -> i32;
-    }
-}
-
-#[pyfunction]
-fn py_process(command: &str) -> PyResult<i32> {
-    Ok(ffi::process(&command))
-}
-
 #[pymodule]
 fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(call, m)?)?;
@@ -832,7 +818,6 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_pip_version, m)?)?;
     m.add_function(wrap_pyfunction!(system, m)?)?;
     m.add_function(wrap_pyfunction!(get_argv, m)?)?;
-    m.add_function(wrap_pyfunction!(py_process, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;
