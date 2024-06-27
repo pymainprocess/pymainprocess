@@ -426,6 +426,38 @@ class path:
             else:
                 raise ProcessBaseError("You must pass str and str or list and list")
 
+    @staticmethod
+    def get_root() -> str:
+        """
+        Get the Root of the System.
+        """
+        from .pymainprocess import get_root as _get_root
+        return _get_root()
+    
+    @staticmethod
+    def find_file(name: str) -> str:
+        """
+        Find a File in the System.
+        """
+        from .pymainprocess import find_file as _find_file
+        return _find_file(name)
+
+    @staticmethod
+    def find_dir(name: str) -> str:
+        """
+        Find a Directory in the System.
+        """
+        from .pymainprocess import find_dir as _find_dir
+        return _find_dir(name)
+
+    @staticmethod
+    def find_any(name: str, if_dir: bool) -> str:
+        """
+        Find a File or Directory in the System.
+        """
+        from .pymainprocess import find_any as _find_any
+        return _find_any(name, if_dir)
+
 path = path()
 
 __all__.append("path")

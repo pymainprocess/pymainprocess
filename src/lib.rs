@@ -15,6 +15,8 @@ use std::env;
 use pytype::PyInt;
 use tempfile::{Builder, TempDir, NamedTempFile};
 
+mod find;
+
 #[cfg(any(target_os = "unix", target_os = "linux", target_os = "macos"))]
 use std::os::unix::fs::MetadataExt;
 
@@ -775,6 +777,26 @@ fn get_color(_code: PyInt, back: bool) -> PyResult<String> {
 }
 
 #[pyfunction]
+fn get_root() -> PyResult<String> {
+    Ok(find::get_root())
+}
+
+#[pyfunction]
+fn find_file(name: &str) -> PyResult<Option<String>> {
+    Ok(find::find_file(name))
+}
+
+#[pyfunction]
+fn find_dir(name: &str) -> PyResult<Option<String>> {
+    Ok(find::find_dir(name))
+}
+
+#[pyfunction]
+fn find_any(name: &str, if_dir: bool) -> PyResult<Option<String>> {
+    Ok(find::find_any(name, if_dir))
+}
+
+#[pyfunction]
 fn get_style(_code: PyInt) -> PyResult<String> {
     let code = _code as i32;
     let __style = if code == -1 {
@@ -856,6 +878,10 @@ fn pymainprocess(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_argv, m)?)?;
     m.add_function(wrap_pyfunction!(get_color, m)?)?;
     m.add_function(wrap_pyfunction!(get_style, m)?)?;
+    m.add_function(wrap_pyfunction!(get_root, m)?)?;
+    m.add_function(wrap_pyfunction!(find_file, m)?)?;
+    m.add_function(wrap_pyfunction!(find_dir, m)?)?;
+    m.add_function(wrap_pyfunction!(find_any, m)?)?;
     m.add("ProcessBaseError", m.py().get_type_bound::<ProcessBaseError>())?;
     m.add("CommandFailed", m.py().get_type_bound::<CommandFailed>())?;
     m.add("UnixOnly", m.py().get_type_bound::<UnixOnly>())?;
