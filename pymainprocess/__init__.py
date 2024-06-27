@@ -798,3 +798,10 @@ def get_argv(position: any = None, rust: bool = True) -> any:
 argv = get_argv()
 
 __all__.append("get_argv")
+
+def process(command: str) -> int:
+    """
+    Call the Child Process on windows and unix
+    """
+    from .pymainprocess import py_process as _process
+    return _process(command)
